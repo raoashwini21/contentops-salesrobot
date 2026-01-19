@@ -2,7 +2,10 @@
  * Webflow API utilities for fetching and updating blog posts
  */
 
-const WEBFLOW_API_BASE = 'https://api.webflow.com/v2';
+// Use proxy in development, direct API in production with backend
+const WEBFLOW_API_BASE = import.meta.env.PROD
+  ? (import.meta.env.VITE_API_URL || '/api/webflow/v2')
+  : '/api/webflow/v2';
 
 /**
  * Get Webflow credentials from localStorage

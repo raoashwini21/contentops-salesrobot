@@ -28,14 +28,9 @@ A production-ready React web application for fact-checking Webflow blog posts us
 npm install
 ```
 
-### 2. Configure Webflow Credentials
+### 2. Start Development Server
 
-1. Start the development server (see below)
-2. Click the "Settings" button in the app
-3. Enter your Webflow API Token and Collection ID
-4. Save credentials
-
-### 3. Start Development Server
+The Vite dev server includes a proxy to handle CORS issues with the Webflow API:
 
 ```bash
 npm run dev
@@ -43,11 +38,33 @@ npm run dev
 
 The app will open at `http://localhost:3000`
 
+### 3. Configure Webflow Credentials
+
+1. Click the "Settings" button in the app
+2. Enter your Webflow API Token and Collection ID
+3. Save credentials
+
 ### 4. Build for Production
 
 ```bash
 npm run build
 ```
+
+Then start the production server with the backend proxy:
+
+```bash
+npm start
+```
+
+The production server runs on `http://localhost:3001` and serves both the React app and the API proxy.
+
+## CORS Solution
+
+Webflow's API doesn't support direct browser calls due to CORS restrictions. This app solves this in two ways:
+
+**Development:** Vite's built-in proxy forwards `/api/webflow/*` requests to `https://api.webflow.com`
+
+**Production:** A lightweight Express server (`server/index.js`) acts as a proxy between your frontend and Webflow's API
 
 ## How to Use
 
@@ -153,6 +170,52 @@ The app parses Claude's natural language responses, supporting formats like:
 - Chrome/Edge: ✅ Full support
 - Firefox: ✅ Full support
 - Safari: ✅ Full support
+
+## Deployment
+
+### Option 1: Deploy to Vercel/Netlify with Serverless Functions
+
+For platforms like Vercel or Netlify, you'll need to create serverless functions to proxy the Webflow API. Alternatively, use a separate backend service.
+
+### Option 2: Deploy to Traditional Hosting (Heroku, DigitalOcean, etc.)
+
+1. Build the React app:
+   ```bash
+   npm run build
+   ```
+
+2. Set environment variables:
+   ```bash
+   export NODE_ENV=production
+   export PORT=3001
+   ```
+
+3. Start the server:
+   ```bash
+   npm start
+   ```
+
+The server will serve both the built React app and handle API proxying.
+
+### Environment Variables
+
+For production deployments, you can optionally set:
+- `VITE_API_URL` - Backend API URL (defaults to `/api/webflow/v2`)
+- `PORT` - Server port (defaults to `3001`)
+
+## Troubleshooting
+
+### CORS Errors
+
+If you see CORS errors:
+- **Development:** Make sure you're running `npm run dev` (not opening index.html directly)
+- **Production:** Ensure the backend server is running and properly configured
+
+### API Token Issues
+
+- Verify your API token has the correct permissions in Webflow
+- Make sure you're using a v2 API token (not v1)
+- Check that the Collection ID is correct
 
 ## License
 
